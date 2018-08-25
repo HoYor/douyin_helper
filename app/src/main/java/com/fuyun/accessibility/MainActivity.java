@@ -2,6 +2,7 @@ package com.fuyun.accessibility;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText mContent;
     private Button mConfirm;
+    private SwitchCompat mSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         mContent = findViewById(R.id.content);
         mContent.setHint(RobotService.mSendMsg);
         mConfirm = findViewById(R.id.confirm);
+        mSwitch = findViewById(R.id.switchBtn);
+        mSwitch.setChecked(RobotService.isAllowPlay);
     }
 
     private void initAction() {
@@ -40,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
                     mContent.setText("");
                     Toast.makeText(MainActivity.this,"设置成功",Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+        mSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                RobotService.isAllowPlay = mSwitch.isChecked();
             }
         });
     }

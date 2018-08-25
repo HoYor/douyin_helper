@@ -1,17 +1,24 @@
 package com.fuyun.accessibility;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.GestureDescription;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by yym on 2018/8/20.
@@ -68,36 +75,55 @@ public class RobotService extends AccessibilityService {
     private void sendComment() {
         if(!isAllowPlay)return;
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo == null)return;
         List<AccessibilityNodeInfo> commentBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
                 "com.ss.android.ugc.aweme:id/wl");
         if(commentBtns != null && commentBtns.size()>0){
             if(step == 0) {
-                AccessibilityNodeInfo commentBtn = commentBtns.get(0);
+                AccessibilityNodeInfo commentBtn = commentBtns.get(commentBtns.size()-1);
                 commentBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 step = 1;
                 return;
-            }else if(step == 3){
-                step = 0;
             }
+//            else if(step == 3){
+//                step = 0;
+//            }
         }
         List<AccessibilityNodeInfo> editInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
                 "com.ss.android.ugc.aweme:id/wh");
         if(step == 1 && editInfos != null && editInfos.size()>0){
-            AccessibilityNodeInfo editInfo = editInfos.get(0);
+            AccessibilityNodeInfo editInfo = editInfos.get(editInfos.size()-1);
             Bundle bundle = new Bundle();
             bundle.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,mSendMsg);
 //            editInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-            editInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             editInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,bundle);
+            editInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             step = 2;
             return;
         }
         List<AccessibilityNodeInfo> sendInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
                 "com.ss.android.ugc.aweme:id/wk");
-        if(sendInfos != null && sendInfos.size()>0){
-            AccessibilityNodeInfo sendInfo = sendInfos.get(0);
-            sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            step = 3;
+        if(step == 2 && sendInfos != null && sendInfos.size()>0){
+            final AccessibilityNodeInfo sendInfo = sendInfos.get(sendInfos.size()-1);
+            Observable.timer(500, TimeUnit.MILLISECONDS)
+                    .subscribe(new Consumer<Long>() {
+                        @Override
+                        public void accept(Long aLong) throws Exception {
+                            if(step == 2) {
+                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                step = 3;
+                                performGlobalAction(GLOBAL_ACTION_BACK);
+                                Observable.timer(500, TimeUnit.MILLISECONDS)
+                                        .subscribe(new Consumer<Long>() {
+                                            @Override
+                                            public void accept(Long aLong) throws Exception {
+                                                performGlobalAction(GLOBAL_ACTION_BACK);
+                                                slideUp();
+                                            }
+                                        });
+                            }
+                        }
+                    });
         }
 //        List<AccessibilityNodeInfo> closeBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
 //                "com.ss.android.ugc.aweme:id/aby");
@@ -105,8 +131,31 @@ public class RobotService extends AccessibilityService {
 //            AccessibilityNodeInfo closeBtn = closeBtns.get(0);
 //            closeBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
 //        }
-        performGlobalAction(GLOBAL_ACTION_BACK);
-        performGlobalAction(GLOBAL_ACTION_BACK);
+    }
+
+    private void slideUp() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            Path path = new Path();
+            path.moveTo(400,1000);
+            path.lineTo(400,100);
+            GestureDescription gestureDescription = new GestureDescription.Builder()
+                    .addStroke(new GestureDescription.StrokeDescription(path,100,300))
+                    .build();
+            if(dispatchGesture(gestureDescription, new GestureResultCallback() {
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    Log.d(TAG, "onCancelled: ");
+                }
+
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    step = 0;
+                    sendComment();
+                }
+            },null)){
+//                isAllowPlay = false;
+            }
+        }
     }
 
     @Override
