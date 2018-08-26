@@ -27,20 +27,19 @@ import io.reactivex.functions.Consumer;
 public class RobotService extends AccessibilityService {
 
     private final String TAG = "RobotService";
-    public static String mSendMsg = "老夫从未见过如此精彩的视频 ~ ";
+    public static String mSendMsg = "我把抖音上所有视频都评论了一遍 ~ ";
     public static boolean isAllowPlay = true;
     public static boolean isPlaying = false;
     private int step = 0;
+    private int step2 = 0;
+    public static int page = 0;
+    private int count = 0;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         int eventType = accessibilityEvent.getEventType();
         Log.d(TAG, "onAccessibilityEvent-eventType:"+eventType);
-        switch (eventType){
-            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                Log.d(TAG, "onAccessibilityEvent: TYPE_NOTIFICATION_STATE_CHANGED");
-                break;
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+        if(eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED){
                 Log.d(TAG, "onAccessibilityEvent: TYPE_WINDOW_STATE_CHANGED");
 //                printPacketInfo(getRootInActiveWindow());
 //                ComponentName activityComponentName = new ComponentName(
@@ -54,21 +53,65 @@ public class RobotService extends AccessibilityService {
 //                        if (activityName != null &&
 //                                "com.ss.android.ugc.aweme.main.MainActivity".equals(activityName)) {
 //                            isPlaying = true;
-                            sendComment();
+            Observable.timer(5,TimeUnit.SECONDS)
+                    .subscribe(new Consumer<Long>() {
+                        @Override
+                        public void accept(Long aLong) throws Exception {
+                            count++;
+                            if(page == 0) {
+                                Log.d(TAG, "step："+step);
+                                sendComment();
+                            }else if(page == 1){
+                                Log.d(TAG, "step2："+step2);
+                                sendComment2();
+                            }
+                        }
+                    });
 //                        }
 //                    } catch (PackageManager.NameNotFoundException e) {
 //                        e.printStackTrace();
 //                    }
 //                }
-                break;
-            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                Log.d(TAG, "onAccessibilityEvent: TYPE_WINDOW_CONTENT_CHANGED");
-//                String className = accessibilityEvent.getClassName().toString();
-//                Log.d(TAG, "className: "+className);
-                break;
-            case AccessibilityEvent.TYPE_VIEW_CLICKED:
-                Log.d(TAG, "onAccessibilityEvent: TYPE_VIEW_CLICKED");
-                break;
+        }
+    }
+
+    private void sendComment2() {
+        if(!isAllowPlay)return;
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo == null)return;
+        List<AccessibilityNodeInfo> editInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
+                "com.ss.android.ugc.aweme:id/wh");
+        if(step2 == 0 && editInfos != null && editInfos.size()>0){
+            AccessibilityNodeInfo editInfo = editInfos.get(editInfos.size()-1);
+            Bundle bundle = new Bundle();
+            bundle.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                    mSendMsg+count);
+            editInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,bundle);
+            editInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            step2 = 1;
+            return;
+        }
+        List<AccessibilityNodeInfo> sendInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
+                "com.ss.android.ugc.aweme:id/wk");
+        if(step2 == 1 && sendInfos != null && sendInfos.size()>0){
+            final AccessibilityNodeInfo sendInfo = sendInfos.get(sendInfos.size()-1);
+            Observable.timer(500, TimeUnit.MILLISECONDS)
+                    .subscribe(new Consumer<Long>() {
+                        @Override
+                        public void accept(Long aLong) throws Exception {
+                            if(step2 == 1) {
+                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                step2 = 2;
+                                Observable.timer(500, TimeUnit.MILLISECONDS)
+                                        .subscribe(new Consumer<Long>() {
+                                            @Override
+                                            public void accept(Long aLong) throws Exception {
+                                                slideUp();
+                                            }
+                                        });
+                            }
+                        }
+                    });
         }
     }
 
@@ -94,7 +137,8 @@ public class RobotService extends AccessibilityService {
         if(step == 1 && editInfos != null && editInfos.size()>0){
             AccessibilityNodeInfo editInfo = editInfos.get(editInfos.size()-1);
             Bundle bundle = new Bundle();
-            bundle.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,mSendMsg);
+            bundle.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
+                    mSendMsg+count);
 //            editInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
             editInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,bundle);
             editInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -145,12 +189,25 @@ public class RobotService extends AccessibilityService {
                 @Override
                 public void onCancelled(GestureDescription gestureDescription) {
                     Log.d(TAG, "onCancelled: ");
+                    performGlobalAction(GLOBAL_ACTION_BACK);
+                    Observable.timer(1,TimeUnit.SECONDS)
+                            .subscribe(new Consumer<Long>() {
+                                @Override
+                                public void accept(Long aLong) throws Exception {
+                                    slideUp();
+                                }
+                            });
                 }
 
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
-                    step = 0;
-                    sendComment();
+                    if(page == 0) {
+                        step = 0;
+                        sendComment();
+                    }else if(page == 1){
+                        step2 = 0;
+                        sendComment2();
+                    }
                 }
             },null)){
 //                isAllowPlay = false;

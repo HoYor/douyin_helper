@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
@@ -14,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mContent;
     private Button mConfirm;
     private SwitchCompat mSwitch;
+    private RadioGroup mPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,9 +31,23 @@ public class MainActivity extends AppCompatActivity {
         mConfirm = findViewById(R.id.confirm);
         mSwitch = findViewById(R.id.switchBtn);
         mSwitch.setChecked(RobotService.isAllowPlay);
+        mPage = findViewById(R.id.page);
     }
 
     private void initAction() {
+        mPage.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkId) {
+                switch (checkId){
+                    case R.id.page1:
+                        RobotService.page = 0;
+                        break;
+                    case R.id.page2:
+                        RobotService.page = 1;
+                        break;
+                }
+            }
+        });
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

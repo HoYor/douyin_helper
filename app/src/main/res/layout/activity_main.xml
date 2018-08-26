@@ -7,6 +7,32 @@
     android:padding="50dp"
     tools:context="com.fuyun.accessibility.MainActivity">
 
+    <TextView
+        android:id="@+id/pageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="需要监听的页面："
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="40dp"/>
+    <RadioGroup
+        android:id="@+id/page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/pageTitle"
+        android:layout_marginTop="10dp">
+        <RadioButton
+            android:id="@+id/page1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐页面"
+            android:checked="true"/>
+        <RadioButton
+            android:id="@+id/page2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="搜索页面"
+            android:checked="false"/>
+    </RadioGroup>
     <EditText
         android:id="@+id/content"
         android:layout_width="match_parent"
@@ -16,10 +42,10 @@
         android:textSize="16sp"
         android:textColor="#242424"
         android:hint="评论内容"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/page"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp"/>
+        android:layout_marginTop="20dp"/>
     <Button
         android:id="@+id/confirm"
         android:layout_width="match_parent"
