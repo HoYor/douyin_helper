@@ -45,6 +45,12 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.page2:
                         RobotService.page = 1;
                         break;
+                    case R.id.page3:
+                        RobotService.page = 2;
+                        break;
+                    case R.id.page4:
+                        RobotService.page = 3;
+                        break;
                 }
             }
         });

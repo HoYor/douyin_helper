@@ -11,9 +11,9 @@
         android:id="@+id/pageTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="需要监听的页面："
+        android:text="选择功能："
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="40dp"/>
+        android:layout_marginTop="10dp"/>
     <RadioGroup
         android:id="@+id/page"
         android:layout_width="match_parent"
@@ -24,13 +24,25 @@
             android:id="@+id/page1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="推荐页面"
+            android:text="推荐页面评论"
             android:checked="true"/>
+        <RadioButton
+            android:id="@+id/page3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐页面点赞"
+            android:checked="false"/>
+        <RadioButton
+            android:id="@+id/page4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="推荐页面关注"
+            android:checked="false"/>
         <RadioButton
             android:id="@+id/page2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="搜索页面"
+            android:text="搜索页面评论"
             android:checked="false"/>
     </RadioGroup>
     <EditText
@@ -65,7 +77,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="评论开关"
+            android:text="是否开启机器人"
             android:layout_centerVertical="true"/>
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/switchBtn"

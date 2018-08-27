@@ -64,6 +64,10 @@ public class RobotService extends AccessibilityService {
                             }else if(page == 1){
                                 Log.d(TAG, "step2："+step2);
                                 sendComment2();
+                            }else if(page == 2){
+                                like();
+                            }else if(page == 3){
+                                follow();
                             }
                         }
                     });
@@ -73,6 +77,42 @@ public class RobotService extends AccessibilityService {
 //                    }
 //                }
         }
+    }
+
+    private void like() {
+        if(!isAllowPlay)return;
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo == null)return;
+        List<AccessibilityNodeInfo> likeBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
+                "com.ss.android.ugc.aweme:id/al2");
+        if(likeBtns != null && likeBtns.size()>0){
+            likeBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        }
+        Observable.timer(500, TimeUnit.MILLISECONDS)
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        slideUp();
+                    }
+                });
+    }
+
+    private void follow(){
+        if(!isAllowPlay)return;
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo == null)return;
+        List<AccessibilityNodeInfo> followBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
+                "com.ss.android.ugc.aweme:id/akz");
+        if(followBtns != null && followBtns.size()>0){
+            followBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        }
+        Observable.timer(500, TimeUnit.MILLISECONDS)
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        slideUp();
+                    }
+                });
     }
 
     private void sendComment2() {
@@ -189,6 +229,8 @@ public class RobotService extends AccessibilityService {
                 @Override
                 public void onCancelled(GestureDescription gestureDescription) {
                     Log.d(TAG, "onCancelled: ");
+                    // TODO: 2018/8/27 检测是不是“评论太快”
+                    if(page > 1)return;
                     performGlobalAction(GLOBAL_ACTION_BACK);
                     Observable.timer(1,TimeUnit.SECONDS)
                             .subscribe(new Consumer<Long>() {
@@ -207,6 +249,10 @@ public class RobotService extends AccessibilityService {
                     }else if(page == 1){
                         step2 = 0;
                         sendComment2();
+                    }else if(page == 2){
+                        like();
+                    }else if(page == 3){
+                        follow();
                     }
                 }
             },null)){
