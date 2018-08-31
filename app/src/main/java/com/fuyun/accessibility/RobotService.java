@@ -53,7 +53,7 @@ public class RobotService extends AccessibilityService {
 //                        if (activityName != null &&
 //                                "com.ss.android.ugc.aweme.main.MainActivity".equals(activityName)) {
 //                            isPlaying = true;
-            Observable.timer(5,TimeUnit.SECONDS)
+            Observable.timer(1,TimeUnit.SECONDS)
                     .subscribe(new Consumer<Long>() {
                         @Override
                         public void accept(Long aLong) throws Exception {
@@ -84,11 +84,12 @@ public class RobotService extends AccessibilityService {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo == null)return;
         List<AccessibilityNodeInfo> likeBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/al2");
+                "com.ss.android.ugc.aweme:id/al7");
         if(likeBtns != null && likeBtns.size()>0){
-            likeBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            Log.d(TAG, "likeBtn-size:"+likeBtns.size());
+            likeBtns.get(likeBtns.size()-1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
         }
-        Observable.timer(500, TimeUnit.MILLISECONDS)
+        Observable.timer(1000, TimeUnit.MILLISECONDS)
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
@@ -102,11 +103,11 @@ public class RobotService extends AccessibilityService {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo == null)return;
         List<AccessibilityNodeInfo> followBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/akz");
+                "com.ss.android.ugc.aweme:id/al4");
         if(followBtns != null && followBtns.size()>0){
-            followBtns.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            followBtns.get(followBtns.size()-1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
         }
-        Observable.timer(500, TimeUnit.MILLISECONDS)
+        Observable.timer(1000, TimeUnit.MILLISECONDS)
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
@@ -120,7 +121,7 @@ public class RobotService extends AccessibilityService {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo == null)return;
         List<AccessibilityNodeInfo> editInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/wh");
+                "com.ss.android.ugc.aweme:id/wl");
         if(step2 == 0 && editInfos != null && editInfos.size()>0){
             AccessibilityNodeInfo editInfo = editInfos.get(editInfos.size()-1);
             Bundle bundle = new Bundle();
@@ -132,7 +133,7 @@ public class RobotService extends AccessibilityService {
             return;
         }
         List<AccessibilityNodeInfo> sendInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/wk");
+                "com.ss.android.ugc.aweme:id/wo");
         if(step2 == 1 && sendInfos != null && sendInfos.size()>0){
             final AccessibilityNodeInfo sendInfo = sendInfos.get(sendInfos.size()-1);
             Observable.timer(500, TimeUnit.MILLISECONDS)
@@ -140,9 +141,9 @@ public class RobotService extends AccessibilityService {
                         @Override
                         public void accept(Long aLong) throws Exception {
                             if(step2 == 1) {
-                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                                 step2 = 2;
-                                Observable.timer(500, TimeUnit.MILLISECONDS)
+                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                                Observable.timer(1000, TimeUnit.MILLISECONDS)
                                         .subscribe(new Consumer<Long>() {
                                             @Override
                                             public void accept(Long aLong) throws Exception {
@@ -160,12 +161,12 @@ public class RobotService extends AccessibilityService {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo == null)return;
         List<AccessibilityNodeInfo> commentBtns = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/wl");
+                "com.ss.android.ugc.aweme:id/wp");
         if(commentBtns != null && commentBtns.size()>0){
             if(step == 0) {
+                step = 1;
                 AccessibilityNodeInfo commentBtn = commentBtns.get(commentBtns.size()-1);
                 commentBtn.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                step = 1;
                 return;
             }
 //            else if(step == 3){
@@ -173,8 +174,9 @@ public class RobotService extends AccessibilityService {
 //            }
         }
         List<AccessibilityNodeInfo> editInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/wh");
+                "com.ss.android.ugc.aweme:id/wl");
         if(step == 1 && editInfos != null && editInfos.size()>0){
+            step = 2;
             AccessibilityNodeInfo editInfo = editInfos.get(editInfos.size()-1);
             Bundle bundle = new Bundle();
             bundle.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
@@ -182,11 +184,10 @@ public class RobotService extends AccessibilityService {
 //            editInfo.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
             editInfo.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT,bundle);
             editInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            step = 2;
             return;
         }
         List<AccessibilityNodeInfo> sendInfos = nodeInfo.findAccessibilityNodeInfosByViewId(
-                "com.ss.android.ugc.aweme:id/wk");
+                "com.ss.android.ugc.aweme:id/wo");
         if(step == 2 && sendInfos != null && sendInfos.size()>0){
             final AccessibilityNodeInfo sendInfo = sendInfos.get(sendInfos.size()-1);
             Observable.timer(500, TimeUnit.MILLISECONDS)
@@ -194,15 +195,20 @@ public class RobotService extends AccessibilityService {
                         @Override
                         public void accept(Long aLong) throws Exception {
                             if(step == 2) {
-                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                                 step = 3;
-                                performGlobalAction(GLOBAL_ACTION_BACK);
+                                sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                                 Observable.timer(500, TimeUnit.MILLISECONDS)
                                         .subscribe(new Consumer<Long>() {
                                             @Override
                                             public void accept(Long aLong) throws Exception {
                                                 performGlobalAction(GLOBAL_ACTION_BACK);
-                                                slideUp();
+                                                Observable.timer(3000, TimeUnit.MILLISECONDS)
+                                                        .subscribe(new Consumer<Long>() {
+                                                            @Override
+                                                            public void accept(Long aLong) throws Exception {
+                                                                slideUp();
+                                                            }
+                                                        });
                                             }
                                         });
                             }
@@ -243,6 +249,7 @@ public class RobotService extends AccessibilityService {
 
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
+                    Log.d(TAG, "onCompleted: ");
                     if(page == 0) {
                         step = 0;
                         sendComment();
