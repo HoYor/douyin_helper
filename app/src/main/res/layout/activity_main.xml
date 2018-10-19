@@ -21,11 +21,17 @@
         app:layout_constraintTop_toBottomOf="@id/pageTitle"
         android:layout_marginTop="10dp">
         <RadioButton
+            android:id="@+id/auto_scroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="仅仅自动滚动"
+            android:checked="true"/>
+        <RadioButton
             android:id="@+id/page1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="推荐页面评论"
-            android:checked="true"/>
+            android:checked="false"/>
         <RadioButton
             android:id="@+id/page3"
             android:layout_width="wrap_content"

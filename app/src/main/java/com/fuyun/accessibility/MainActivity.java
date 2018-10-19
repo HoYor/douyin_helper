@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkId) {
                 switch (checkId){
+                    case R.id.auto_scroll:
+                        RobotService.page = -1;
+                        break;
                     case R.id.page1:
                         RobotService.page = 0;
                         break;

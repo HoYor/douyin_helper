@@ -30,9 +30,10 @@ public class RobotService extends AccessibilityService {
     public static String mSendMsg = "我把抖音上所有视频都评论了一遍 ~ ";
     public static boolean isAllowPlay = true;
     public static boolean isPlaying = false;
+    public static boolean isScrolling = false;
     private int step = 0;
     private int step2 = 0;
-    public static int page = 0;
+    public static int page = -1;
     private int count = 0;
 
     @Override
@@ -58,16 +59,35 @@ public class RobotService extends AccessibilityService {
                         @Override
                         public void accept(Long aLong) throws Exception {
                             count++;
-                            if(page == 0) {
-                                Log.d(TAG, "step："+step);
-                                sendComment();
-                            }else if(page == 1){
-                                Log.d(TAG, "step2："+step2);
-                                sendComment2();
-                            }else if(page == 2){
-                                like();
-                            }else if(page == 3){
-                                follow();
+                            switch (page){
+                                case -1:
+                                    if(!isScrolling) {
+                                        isScrolling = true;
+                                        Observable.interval(2,3, TimeUnit.SECONDS)
+                                                .subscribe(new Consumer<Long>() {
+                                                    @Override
+                                                    public void accept(Long aLong) throws Exception {
+                                                        if(aLong<200) {
+                                                            slideUp();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                    break;
+                                case 0:
+                                    Log.d(TAG, "step："+step);
+                                    sendComment();
+                                    break;
+                                case 1:
+                                    Log.d(TAG, "step2："+step2);
+                                    sendComment2();
+                                    break;
+                                case 2:
+                                    like();
+                                    break;
+                                case 3:
+                                    follow();
+                                    break;
                             }
                         }
                     });
@@ -197,12 +217,12 @@ public class RobotService extends AccessibilityService {
                             if(step == 2) {
                                 step = 3;
                                 sendInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                                Observable.timer(500, TimeUnit.MILLISECONDS)
+                                Observable.timer(1000, TimeUnit.MILLISECONDS)
                                         .subscribe(new Consumer<Long>() {
                                             @Override
                                             public void accept(Long aLong) throws Exception {
                                                 performGlobalAction(GLOBAL_ACTION_BACK);
-                                                Observable.timer(3000, TimeUnit.MILLISECONDS)
+                                                Observable.timer(2000, TimeUnit.MILLISECONDS)
                                                         .subscribe(new Consumer<Long>() {
                                                             @Override
                                                             public void accept(Long aLong) throws Exception {
@@ -236,30 +256,39 @@ public class RobotService extends AccessibilityService {
                 public void onCancelled(GestureDescription gestureDescription) {
                     Log.d(TAG, "onCancelled: ");
                     // TODO: 2018/8/27 检测是不是“评论太快”
-                    if(page > 1)return;
-                    performGlobalAction(GLOBAL_ACTION_BACK);
-                    Observable.timer(1,TimeUnit.SECONDS)
-                            .subscribe(new Consumer<Long>() {
-                                @Override
-                                public void accept(Long aLong) throws Exception {
-                                    slideUp();
-                                }
-                            });
+                    if(page == 0) {
+                        performGlobalAction(GLOBAL_ACTION_BACK);
+                        Observable.timer(1, TimeUnit.SECONDS)
+                                .subscribe(new Consumer<Long>() {
+                                    @Override
+                                    public void accept(Long aLong) throws Exception {
+                                        slideUp();
+                                    }
+                                });
+                    }
                 }
 
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     Log.d(TAG, "onCompleted: ");
-                    if(page == 0) {
-                        step = 0;
-                        sendComment();
-                    }else if(page == 1){
-                        step2 = 0;
-                        sendComment2();
-                    }else if(page == 2){
-                        like();
-                    }else if(page == 3){
-                        follow();
+                    switch (page){
+                        case -1:
+                            break;
+                        case 0:
+                            step = 0;
+                            sendComment();
+                            break;
+                        case 1:
+                            step2 = 0;
+                            sendComment2();
+                            break;
+                        case 2:
+                            like();
+                            break;
+                        case 3:
+                            follow();
+                            break;
+
                     }
                 }
             },null)){
